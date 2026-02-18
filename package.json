@@ -1,0 +1,46 @@
+{
+  "name": "lumilearn",
+  "private": true,
+  "version": "1.0.0",
+  "description": "個人線上課程平台 - 類 Hahow 風格，具備 YouTube/Google Drive 影片、AI 助教、封面編輯",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "dev:api": "cross-env PORT=3001 node server/index.js",
+    "build": "vite build",
+    "preview": "vite preview",
+    "start": "node server/index.js"
+  },
+  "dependencies": {
+    "@google/genai": "^1.41.0",
+    "express": "^4.21.0",
+    "lucide-react": "^0.460.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "react-router-dom": "^7.13.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.0",
+    "@vitejs/plugin-react": "^5.0.0",
+    "cross-env": "^7.0.3",
+    "typescript": "~5.8.2",
+    "vite": "^6.2.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/lumilearn.git"
+  },
+  "keywords": [
+    "course",
+    "learning",
+    "react",
+    "vite",
+    "gemini",
+    "taiwan"
+  ],
+  "author": "",
+  "license": "MIT"
+}
