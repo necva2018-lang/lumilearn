@@ -1,6 +1,6 @@
-# LumiLearn 部署指南（Zeabur）
+# Lumilearm 部署指南（Zeabur）
 
-本文件說明如何將 LumiLearn 線上課程平台部署至 [Zeabur](https://zeabur.com)。
+本文件說明如何將 **Lumilearm** 線上課程平台部署至 [Zeabur](https://zeabur.com)。
 
 ---
 
@@ -22,41 +22,58 @@
 
 ## Zeabur 部署步驟
 
-### 1. 導入專案
+### 1. 建立專案 Lumilearm
 
 1. 登入 [Zeabur](https://zeabur.com)
-2. 點擊 **Deploy New Service** 或 **Add new service**
-3. 選擇 **Deploy your source code**
-4. 連接 GitHub，搜尋並導入本專案儲存庫
+2. 前往 [專案列表](https://zeabur.com/projects)
+3. 點擊 **Create Project**（或 `Ctrl+K` 開啟指令面板）
+4. 選擇部署區域，建立新專案後將其命名為 **Lumilearm**
 
-### 2. 設定環境變數
+### 2. 導入服務
 
-在 Zeabur 專案中，進入服務的 **Variables** 分頁，新增：
+1. 在 Lumilearm 專案中點擊 **Deploy New Service**
+2. 選擇 **Deploy your source code**
+3. 連接 GitHub，搜尋並導入本專案儲存庫
+
+### 3. 設定 Secrets / 環境變數
+
+**重要：** Gemini API Key 僅存放於後端，切勿提交至 Git。請在 Zeabur 的 Variables（Secrets）中設定：
+
+1. 進入服務的 **Variables** 分頁
+2. 點擊 **Add Variables**
+3. 新增以下變數（建議將 `GEMINI_API_KEY` 設為隱藏/Secret 類型）：
 
 | 變數名稱 | 說明 | 必填 |
 |---------|------|------|
-| `GEMINI_API_KEY` | Google Gemini API Key | ✅ |
+| `GEMINI_API_KEY` | Google Gemini API Key（後端使用，不會暴露於前端） | ✅ |
 
 取得 API Key：https://aistudio.google.com/apikey
 
-### 3. 部署與建置
+### 4. 部署與建置
 
-Zeabur 會自動：
+專案根目錄已包含 `zbpack.json`，Zeabur 會自動：
 
 1. 偵測為 Node.js 專案
 2. 執行 `npm install`
-3. 執行 `npm run build`（Vite 建置前端）
-4. 執行 `npm start`（啟動 Express 伺服器）
+3. 執行 `npm run build`（Vite 建置前端至 `dist/`）
+4. 執行 `npm start`（啟動 Express 伺服器，提供 API 與靜態檔）
 
-若偵測有誤，可於 **Build** 設定中手動指定：
+若需調整，可於 **Build** 設定中手動指定：
 
 - **Install Command**：`npm install`
 - **Build Command**：`npm run build`
 - **Start Command**：`npm start`
 
-### 4. 網域
+### 5. 網域
 
 部署完成後，Zeabur 會提供 `*.zeabur.app` 網域，亦可於設定中綁定自訂網域。
+
+---
+
+## 架構與安全
+
+- **Gemini API 僅在後端**：`server/index.js` 從 `process.env.GEMINI_API_KEY` 讀取金鑰，前端 `geminiService.ts` 僅呼叫 `/api/chat` 與 `/api/generate-description`，**絕不會暴露 API Key**。
+- **Secrets 變數**：請將 `GEMINI_API_KEY` 設於 Zeabur Variables，並避免將 `.env` 或金鑰提交至 Git。
 
 ---
 

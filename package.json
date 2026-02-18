@@ -1,5 +1,5 @@
 {
-  "name": "lumilearn",
+  "name": "lumilearm",
   "private": true,
   "version": "1.0.0",
   "description": "個人線上課程平台 - 類 Hahow 風格，具備 YouTube/Google Drive 影片、AI 助教、封面編輯",
@@ -31,7 +31,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-username/lumilearn.git"
+    "url": "https://github.com/necva2018-lang/lumilearn.git"
   },
   "keywords": [
     "course",
