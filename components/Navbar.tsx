@@ -1,11 +1,14 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { BookOpen, Search, Bell, User, PlusCircle, Sun, Moon, Image } from 'lucide-react';
+import { BookOpen, Search, Bell, User, PlusCircle, Sun, Moon, Image, Share2, Eye } from 'lucide-react';
 import { APP_NAME } from '../constants';
 import { useTheme } from '../contexts/ThemeContext';
+import { useShare, buildPreviewUrl } from '../contexts/ShareContext';
 
 const Navbar: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
+  const { isViewOnly } = useShare();
+
   return (
     <nav className="sticky top-0 z-50 bg-white dark:bg-slate-900 border-b border-gray-100 dark:border-slate-700 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -41,20 +44,40 @@ const Navbar: React.FC = () => {
             >
               {theme === 'light' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
             </button>
-            <Link 
-              to="/edit-cover" 
-              className="hidden sm:flex items-center gap-1 text-sm font-medium text-gray-600 dark:text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 px-3 py-2 rounded-lg transition-colors"
-            >
-              <Image className="h-4 w-4" />
-              封面編輯
-            </Link>
-            <Link 
-              to="/create-course" 
-              className="hidden sm:flex items-center gap-1 text-sm font-medium text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 bg-teal-50 dark:bg-teal-900/30 hover:bg-teal-100 dark:hover:bg-teal-900/50 px-3 py-2 rounded-lg transition-colors"
-            >
-              <PlusCircle className="h-4 w-4" />
-              我要開課
-            </Link>
+            {!isViewOnly && (
+              <>
+                <Link 
+                  to="/edit-cover" 
+                  className="hidden sm:flex items-center gap-1 text-sm font-medium text-gray-600 dark:text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 px-3 py-2 rounded-lg transition-colors"
+                >
+                  <Image className="h-4 w-4" />
+                  封面編輯
+                </Link>
+                <a
+                  href={buildPreviewUrl()}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hidden sm:flex items-center gap-1 text-sm font-medium text-gray-600 dark:text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 px-3 py-2 rounded-lg transition-colors"
+                >
+                  <Eye className="h-4 w-4" />
+                  預覽
+                </a>
+                <Link 
+                  to="/share-settings" 
+                  className="hidden sm:flex items-center gap-1 text-sm font-medium text-gray-600 dark:text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 px-3 py-2 rounded-lg transition-colors"
+                >
+                  <Share2 className="h-4 w-4" />
+                  分享
+                </Link>
+                <Link 
+                  to="/create-course" 
+                  className="hidden sm:flex items-center gap-1 text-sm font-medium text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 bg-teal-50 dark:bg-teal-900/30 hover:bg-teal-100 dark:hover:bg-teal-900/50 px-3 py-2 rounded-lg transition-colors"
+                >
+                  <PlusCircle className="h-4 w-4" />
+                  我要開課
+                </Link>
+              </>
+            )}
             <button className="text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200 transition-colors">
               <Bell className="h-5 w-5" />
             </button>

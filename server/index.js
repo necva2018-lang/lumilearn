@@ -6,6 +6,7 @@
 import express from 'express';
 import path from 'path';
 import fs from 'fs';
+import crypto from 'node:crypto';
 import { fileURLToPath } from 'url';
 import { GoogleGenAI } from '@google/genai';
 
@@ -146,6 +147,63 @@ app.get('/api/health', (req, res) => {
     ok: true,
     geminiConfigured: !!(GEMINI_API_KEY && GEMINI_API_KEY !== 'PLACEHOLDER_API_KEY'),
   });
+});
+
+// ============ 分享 / 發布 API ============
+// 儲存發布快照（記憶體，重啟後清空；生產環境可改用 Redis/DB）
+const publishStore = new Map();
+
+/**
+ * POST /api/publish - 發布或更新分享
+ * body: { token?, courses, heroCover, categories }
+ * - 有 token：更新既有發布
+ * - 無 token：建立新發布，回傳 token
+ * - enabled: boolean 控制分享開關
+ */
+app.post('/api/publish', (req, res) => {
+  const { token, courses, heroCover, categories, enabled = true } = req.body;
+  if (!courses || !Array.isArray(courses)) {
+    return res.status(400).json({ error: '缺少 courses' });
+  }
+  const id = token || crypto.randomUUID();
+  publishStore.set(id, {
+    courses,
+    heroCover: heroCover || {},
+    categories: categories || [],
+    enabled: !!enabled,
+    updatedAt: new Date().toISOString(),
+  });
+  res.json({ token: id, enabled: true });
+});
+
+/**
+ * GET /api/publish/:token - 取得發布內容（分享檢視用）
+ */
+app.get('/api/publish/:token', (req, res) => {
+  const { token } = req.params;
+  const data = publishStore.get(token);
+  if (!data) return res.status(404).json({ error: '找不到分享' });
+  if (!data.enabled) return res.status(403).json({ error: '此分享已關閉' });
+  res.json({
+    courses: data.courses,
+    heroCover: data.heroCover,
+    categories: data.categories,
+    updatedAt: data.updatedAt,
+  });
+});
+
+/**
+ * POST /api/publish/:token/toggle - 開關分享
+ * body: { enabled: boolean }
+ */
+app.post('/api/publish/:token/toggle', (req, res) => {
+  const { token } = req.params;
+  const { enabled } = req.body;
+  const data = publishStore.get(token);
+  if (!data) return res.status(404).json({ error: '找不到分享' });
+  data.enabled = !!enabled;
+  data.updatedAt = new Date().toISOString();
+  res.json({ token, enabled: data.enabled });
 });
 
 // ============ 靜態檔案（生產環境） ============

@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useShare } from './ShareContext';
 
 export interface HeroCoverConfig {
   badgeText: string;
@@ -31,6 +32,9 @@ interface HeroCoverContextType {
 const HeroCoverContext = createContext<HeroCoverContextType | undefined>(undefined);
 
 export function HeroCoverProvider({ children }: { children: React.ReactNode }) {
+  const share = useShare();
+  const isSharedView = share.isSharedView && share.sharedData;
+
   const [config, setConfigState] = useState<HeroCoverConfig>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
@@ -45,15 +49,22 @@ export function HeroCoverProvider({ children }: { children: React.ReactNode }) {
   });
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
-  }, [config]);
+    if (!isSharedView) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
+    }
+  }, [config, isSharedView]);
+
+  // 分享模式：使用發布的 hero 設定
+  const effectiveConfig = isSharedView && share.sharedData?.heroCover
+    ? { ...DEFAULT_HERO, ...(share.sharedData.heroCover as Partial<HeroCoverConfig>) }
+    : config;
 
   const setConfig = (c: HeroCoverConfig) => setConfigState(c);
   const updateConfig = (partial: Partial<HeroCoverConfig>) =>
     setConfigState(prev => ({ ...prev, ...partial }));
 
   return (
-    <HeroCoverContext.Provider value={{ config, setConfig, updateConfig }}>
+    <HeroCoverContext.Provider value={{ config: effectiveConfig, setConfig, updateConfig }}>
       {children}
     </HeroCoverContext.Provider>
   );

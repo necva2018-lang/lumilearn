@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { HashRouter as Router, Routes, Route, useParams, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
+import PreviewBanner from './components/PreviewBanner';
 import HomePage from './pages/HomePage';
 import CoursePage from './pages/CoursePage';
 import CreateCoursePage from './pages/CreateCoursePage';
 import EditCoverPage from './pages/EditCoverPage';
 import ExplorePage from './pages/ExplorePage';
+import ShareSettingsPage from './pages/ShareSettingsPage';
 import { MOCK_COURSES } from './constants';
 import { Course } from './types';
+import { useShare } from './contexts/ShareContext';
 
 function EditCourseWrapper({ courses, onUpdateCourse, onRenameCategory }: { 
   courses: Course[]; 
@@ -28,6 +31,7 @@ function EditCourseWrapper({ courses, onUpdateCourse, onRenameCategory }: {
 }
 
 function App() {
+  const { isSharedView, isViewOnly, sharedData, loading, error } = useShare();
   // Initialize state from localStorage if available, otherwise use MOCK_COURSES
   // Changed key to 'lumilearn_courses_v2' to ensure users get the new data structure (videoId instead of youtubeId)
   const [courses, setCourses] = useState<Course[]>(() => {
@@ -76,41 +80,76 @@ function App() {
     );
   };
 
+  // 分享檢視：使用發布的資料，且禁止存取編輯頁面
+  const effectiveCourses = isSharedView && sharedData?.courses
+    ? (sharedData.courses as Course[])
+    : courses;
+
+  if (isSharedView && loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900">
+        <div className="text-gray-500 dark:text-slate-400">載入中...</div>
+      </div>
+    );
+  }
+
+  if (isSharedView && error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center flex-col bg-slate-50 dark:bg-slate-900">
+        <p className="text-red-600 dark:text-red-400">{error}</p>
+      </div>
+    );
+  }
+
   return (
     <Router>
       <div className="min-h-screen bg-slate-50 dark:bg-slate-900 font-sans text-gray-900 dark:text-slate-100 transition-colors">
+        <PreviewBanner />
         <Navbar />
         <Routes>
-          <Route path="/" element={<HomePage courses={courses} />} />
+          <Route path="/" element={<HomePage courses={effectiveCourses} />} />
           <Route 
             path="/explore" 
-            element={<ExplorePage courses={courses} />} 
+            element={<ExplorePage courses={effectiveCourses} />} 
           />
           <Route 
             path="/course/:id" 
-            element={<CoursePage courses={courses} incrementView={handleIncrementView} />} 
+            element={<CoursePage courses={effectiveCourses} incrementView={handleIncrementView} />} 
           />
+          {/* 分享／預覽模式下禁止編輯路由 */}
           <Route 
             path="/edit-cover" 
-            element={<EditCoverPage />} 
+            element={isViewOnly ? <Navigate to="/" replace /> : <EditCoverPage />} 
           />
           <Route 
             path="/create-course" 
             element={
-              <CreateCoursePage 
-                onAddCourse={handleAddCourse} 
-                onRenameCategory={handleRenameCategory}
-              />
+              isViewOnly ? <Navigate to="/" replace /> : (
+                <CreateCoursePage 
+                  onAddCourse={handleAddCourse} 
+                  onRenameCategory={handleRenameCategory}
+                />
+              )
             } 
           />
           <Route 
             path="/course/:id/edit" 
             element={
-              <EditCourseWrapper 
-                courses={courses} 
-                onUpdateCourse={handleUpdateCourse}
-                onRenameCategory={handleRenameCategory}
-              />
+              isViewOnly ? <Navigate to="/" replace /> : (
+                <EditCourseWrapper 
+                  courses={courses} 
+                  onUpdateCourse={handleUpdateCourse}
+                  onRenameCategory={handleRenameCategory}
+                />
+              )
+            } 
+          />
+          <Route 
+            path="/share-settings" 
+            element={
+              isViewOnly ? <Navigate to="/" replace /> : (
+                <ShareSettingsPage courses={courses} />
+              )
             } 
           />
         </Routes>

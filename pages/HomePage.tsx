@@ -4,6 +4,7 @@ import CourseCard from '../components/CourseCard';
 import { Sparkles, ChevronRight, ChevronLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useHeroCover } from '../contexts/HeroCoverContext';
+import { useShare } from '../contexts/ShareContext';
 
 interface HomePageProps {
   courses: Course[];
@@ -13,6 +14,7 @@ const DEFAULT_CATEGORIES = ['程式開發', '設計', '商業', '攝影', '語�
 
 const HomePage: React.FC<HomePageProps> = ({ courses }) => {
   const { config: hero } = useHeroCover();
+  const { isViewOnly } = useShare();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
@@ -75,9 +77,11 @@ const HomePage: React.FC<HomePageProps> = ({ courses }) => {
               <Link to="/explore" className="bg-teal-600 text-white px-8 py-3.5 rounded-xl font-bold hover:bg-teal-700 transition-colors shadow-lg shadow-teal-600/20">
                 {hero.primaryButtonText}
               </Link>
-              <Link to="/create-course" className="bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-200 border border-gray-200 dark:border-slate-600 px-8 py-3.5 rounded-xl font-bold hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">
-                {hero.secondaryButtonText}
-              </Link>
+              {!isViewOnly && (
+                <Link to="/create-course" className="bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-200 border border-gray-200 dark:border-slate-600 px-8 py-3.5 rounded-xl font-bold hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">
+                  {hero.secondaryButtonText}
+                </Link>
+              )}
             </div>
           </div>
 

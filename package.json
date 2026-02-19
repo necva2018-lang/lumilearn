@@ -1,7 +1,7 @@
 {
   "name": "lumilearm",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "個人線上課程平台 - 類 Hahow 風格，具備 YouTube/Google Drive 影片、AI 助教、封面編輯",
   "type": "module",
   "scripts": {

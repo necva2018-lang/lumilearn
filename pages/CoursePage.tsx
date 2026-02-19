@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { PlayCircle, Lock, CheckCircle, Clock, ChevronLeft, Eye, Pencil } from 'lucide-react';
 import { Course, Lesson } from '../types';
 import AIChatBot from '../components/AIChatBot';
+import { useShare } from '../contexts/ShareContext';
 
 interface CoursePageProps {
   courses: Course[];
@@ -11,6 +12,7 @@ interface CoursePageProps {
 
 const CoursePage: React.FC<CoursePageProps> = ({ courses, incrementView }) => {
   const { id } = useParams<{ id: string }>();
+  const { isViewOnly } = useShare();
   const course = courses.find((c) => c.id === id);
   
   const [activeLesson, setActiveLesson] = useState<Lesson | null>(null);
@@ -142,13 +144,15 @@ const CoursePage: React.FC<CoursePageProps> = ({ courses, incrementView }) => {
                 <h3 className="font-bold text-gray-900 dark:text-slate-100">課程內容</h3>
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-medium text-gray-500 dark:text-slate-400">{course.modules.reduce((acc, m) => acc + m.lessons.length, 0)} 堂課</span>
-                  <Link
-                    to={`/course/${course.id}/edit`}
-                    className="inline-flex items-center gap-1.5 text-xs font-medium text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 bg-teal-50 dark:bg-teal-900/30 hover:bg-teal-100 dark:hover:bg-teal-900/50 px-2.5 py-1.5 rounded-lg transition-colors"
-                  >
-                    <Pencil className="h-3.5 w-3.5" />
-                    編輯
-                  </Link>
+                  {!isViewOnly && (
+                    <Link
+                      to={`/course/${course.id}/edit`}
+                      className="inline-flex items-center gap-1.5 text-xs font-medium text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 bg-teal-50 dark:bg-teal-900/30 hover:bg-teal-100 dark:hover:bg-teal-900/50 px-2.5 py-1.5 rounded-lg transition-colors"
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                      編輯
+                    </Link>
+                  )}
                 </div>
               </div>
               

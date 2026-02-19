@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import { ThemeProvider } from './contexts/ThemeContext';
+import { ShareProvider } from './contexts/ShareContext';
 import { HeroCoverProvider } from './contexts/HeroCoverContext';
 
 const rootElement = document.getElementById('root');
@@ -13,9 +14,11 @@ const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
     <ThemeProvider>
-      <HeroCoverProvider>
-        <App />
-      </HeroCoverProvider>
+      <ShareProvider>
+        <HeroCoverProvider>
+          <App />
+        </HeroCoverProvider>
+      </ShareProvider>
     </ThemeProvider>
   </React.StrictMode>
 );
